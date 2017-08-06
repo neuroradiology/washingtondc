@@ -36,7 +36,7 @@
 
 #include "io_thread.h"
 
-static struct event_base *event_base;
+struct event_base *event_base;
 
 static pthread_t io_thread;
 
@@ -83,9 +83,16 @@ static void *io_main(void *arg) {
     if (pthread_mutex_unlock(&io_thread_create_mutex) != 0)
         abort(); // TODO: error handling
 
-    while (event_base_loop(event_base, EVLOOP_ONCE) >= 0)
+    serial_server_init(dreamcast_get_cpu());
+
+    while (event_base_loop(event_base, EVLOOP_ONCE) >= 0) {
         if (!dc_is_running())
             break;
+
+        serial_server_run();
+    }
+
+    serial_server_cleanup();
 
     event_base_free(event_base);
 
