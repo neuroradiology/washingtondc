@@ -89,7 +89,8 @@ static void *io_main(void *arg) {
 
     serial_server_init(dreamcast_get_cpu());
 
-    while (event_base_loop(event_base, EVLOOP_ONCE) >= 0) {
+    int const evflags = EVLOOP_ONCE | EVLOOP_NO_EXIT_ON_EMPTY;
+    while (event_base_loop(event_base, evflags) >= 0) {
         if (!dc_is_running())
             break;
 
